@@ -49,6 +49,26 @@ async function setupDatabase() {
     `);
     console.log("✅ Tabla users creada/verificada");
 
+    // Create people table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS people (
+        id BIGSERIAL PRIMARY KEY,
+        user_id BIGINT NOT NULL REFERENCES users(id),
+        name TEXT NOT NULL,
+        relation TEXT,
+        image_url TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    console.log("✅ Tabla people creada/verificada");
+
+    // Add image_url column if not exists
+    await client.query(`
+      ALTER TABLE people ADD COLUMN IF NOT EXISTS image_url TEXT
+    `);
+    console.log("✅ Columna image_url agregada/verificada");
+
     // Add new columns if they don't exist (for backwards compatibility)
     try {
       await client.query(
