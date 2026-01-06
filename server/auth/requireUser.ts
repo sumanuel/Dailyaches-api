@@ -7,6 +7,8 @@ export type AuthUser = {
   id: number;
   email: string;
   name: string | null;
+  phone: string | null;
+  birth_date: string | null;
   role: string;
   is_active: boolean;
 };
@@ -33,7 +35,7 @@ export async function getAuthUser(event: any): Promise<AuthUser> {
 
   await ensureUsersInfra();
   const result = await query<AuthUser>(
-    "select id, email, name, role, is_active from users where id = $1",
+    "select id, email, name, phone, birth_date, role, is_active from users where id = $1",
     [Number(payload.sub)]
   );
 
