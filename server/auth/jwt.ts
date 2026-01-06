@@ -1,5 +1,5 @@
 import { createError } from "h3";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 export type JwtPayload = {
   sub: string;

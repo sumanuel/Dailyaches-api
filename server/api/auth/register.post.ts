@@ -12,8 +12,10 @@ type RegisterBody = {
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as RegisterBody;
-  const email = (body.email || "").trim().toLowerCase();
-  const password = (body.password || "").trim();
+  const email = String(body.email || "")
+    .trim()
+    .toLowerCase();
+  const password = String(body.password || "").trim();
   const name = body.name ? String(body.name).trim() : null;
 
   if (!email || !password) {
@@ -51,6 +53,8 @@ export default defineEventHandler(async (event) => {
 
     return { token, user };
   } catch (err: any) {
+    console.error("Error registering user:", err);
+    console.error("Error code:", err?.code);
     // 23505 = unique_violation
     if (err?.code === "23505") {
       throw createError({

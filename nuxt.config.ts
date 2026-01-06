@@ -1,11 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-12-30",
-  devtools: { enabled: true },
-
-  nitro: {
-    preset: "node-server",
-  },
+  devtools: { enabled: false },
 
   runtimeConfig: {
     postgresUrl: process.env.POSTGRES_URL,

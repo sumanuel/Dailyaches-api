@@ -8,43 +8,54 @@ let pool: pg.Pool | undefined;
 export function getPool() {
   if (pool) return pool;
 
-  const config = useRuntimeConfig();
-  const connectionString = config.postgresUrl;
-  const schema = (config.dbSchema || "public").trim() || "public";
+  try {
+    const config = useRuntimeConfig();
+    console.log("DB Config:", {
+      host: config.dbHost,
+      database: config.dbName,
+      user: config.dbUser,
+    }); // Agregar log
+    const connectionString = config.postgresUrl;
+    const schema = (config.dbSchema || "public").trim() || "public";
 
-  if (connectionString) {
+    if (connectionString) {
+      pool = new Pool({
+        connectionString,
+        max: 10,
+        options: `-c search_path=${schema},public`,
+      });
+
+      return pool;
+    }
+
+    const host = config.dbHost;
+    const port = config.dbPort ? Number(config.dbPort) : 5432;
+    const database = config.dbName;
+    const user = config.dbUser;
+    const password = config.dbPassword;
+
+    if (!host || !database || !user) {
+      throw createError({
+        statusCode: 500,
+        statusMessage:
+          "Database is not configured (set POSTGRES_URL or DB_HOST/DB_NAME/DB_USER)",
+      });
+    }
+
     pool = new Pool({
-      connectionString,
+      host,
+      port,
+      database,
+      user,
+      password,
       max: 10,
       options: `-c search_path=${schema},public`,
     });
 
+    console.log("Pool created successfully"); // Agregar log
     return pool;
+  } catch (error) {
+    console.error("Error creating pool:", error);
+    throw error;
   }
-
-  const host = config.dbHost;
-  const port = config.dbPort ? Number(config.dbPort) : 5432;
-  const database = config.dbName;
-  const user = config.dbUser;
-  const password = config.dbPassword;
-
-  if (!host || !database || !user) {
-    throw createError({
-      statusCode: 500,
-      statusMessage:
-        "Database is not configured (set POSTGRES_URL or DB_HOST/DB_NAME/DB_USER)",
-    });
-  }
-
-  pool = new Pool({
-    host,
-    port,
-    database,
-    user,
-    password,
-    max: 10,
-    options: `-c search_path=${schema},public`,
-  });
-
-  return pool;
 }
