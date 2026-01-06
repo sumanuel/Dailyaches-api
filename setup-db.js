@@ -81,6 +81,19 @@ async function setupDatabase() {
     `);
     console.log("✅ Columna whatsapp_enabled agregada/verificada");
 
+    // Create pain_types table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS pain_types (
+        id BIGSERIAL PRIMARY KEY,
+        user_id BIGINT NOT NULL REFERENCES users(id),
+        name TEXT NOT NULL,
+        image_url TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    console.log("✅ Tabla pain_types creada/verificada");
+
     // Add new columns if they don't exist (for backwards compatibility)
     try {
       await client.query(
@@ -101,8 +114,12 @@ async function setupDatabase() {
     console.log(
       "   - users (id, email, password_hash, name, role, is_active, created_at, updated_at)"
     );
-    console.log("");
-    console.log("✅ Ya puedes probar el registro y login en tu app!");
+    console.log(
+      "   - people (id, user_id, name, relation, image_url, phone, whatsapp_enabled, created_at, updated_at)"
+    );
+    console.log(
+      "   - pain_types (id, user_id, name, image_url, created_at, updated_at)"
+    );
   } catch (error) {
     console.error("❌ Error al inicializar la base de datos:", error);
     process.exit(1);
