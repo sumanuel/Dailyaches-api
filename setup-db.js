@@ -69,6 +69,18 @@ async function setupDatabase() {
     `);
     console.log("✅ Columna image_url agregada/verificada");
 
+    // Add phone column if not exists
+    await client.query(`
+      ALTER TABLE people ADD COLUMN IF NOT EXISTS phone TEXT
+    `);
+    console.log("✅ Columna phone agregada/verificada");
+
+    // Add whatsapp_enabled column if not exists
+    await client.query(`
+      ALTER TABLE people ADD COLUMN IF NOT EXISTS whatsapp_enabled BOOLEAN DEFAULT FALSE
+    `);
+    console.log("✅ Columna whatsapp_enabled agregada/verificada");
+
     // Add new columns if they don't exist (for backwards compatibility)
     try {
       await client.query(

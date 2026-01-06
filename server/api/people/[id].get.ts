@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const person = await query(
-    "SELECT id, name, relation, image_url, created_at FROM people WHERE id = $1 AND user_id = $2",
+    "SELECT id, name, relation, image_url, phone, whatsapp_enabled, created_at FROM people WHERE id = $1 AND user_id = $2",
     [personId, user.id]
   );
 

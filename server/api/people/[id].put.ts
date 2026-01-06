@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const { name, relation, image_url } = body;
+  const { name, relation, image_url, phone, whatsapp_enabled } = body;
 
   if (!name || name.trim() === "") {
     throw createError({ statusCode: 400, statusMessage: "Name is required" });
@@ -33,11 +33,13 @@ export default defineEventHandler(async (event) => {
 
   // Update the person
   const updatedPerson = await query(
-    "UPDATE people SET name = $1, relation = $2, image_url = $3, updated_at = NOW() WHERE id = $4 AND user_id = $5 RETURNING id, name, relation, image_url, created_at, updated_at",
+    "UPDATE people SET name = $1, relation = $2, image_url = $3, phone = $4, whatsapp_enabled = $5, updated_at = NOW() WHERE id = $6 AND user_id = $7 RETURNING id, name, relation, image_url, phone, whatsapp_enabled, created_at, updated_at",
     [
       name.trim(),
       relation?.trim() || null,
       image_url?.trim() || null,
+      phone?.trim() || null,
+      whatsapp_enabled || false,
       personId,
       user.id,
     ]
