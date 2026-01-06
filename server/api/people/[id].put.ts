@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     [personId, user.id]
   );
 
-  if (existingPerson.length === 0) {
+  if (existingPerson.rows.length === 0) {
     throw createError({ statusCode: 404, statusMessage: "Person not found" });
   }
 
@@ -45,5 +45,5 @@ export default defineEventHandler(async (event) => {
     ]
   );
 
-  return { success: true, person: updatedPerson[0] };
+  return { success: true, person: updatedPerson.rows[0] };
 });

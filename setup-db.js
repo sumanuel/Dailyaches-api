@@ -94,6 +94,21 @@ async function setupDatabase() {
     `);
     console.log("✅ Tabla pain_types creada/verificada");
 
+    // Create records table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS records (
+        id BIGSERIAL PRIMARY KEY,
+        user_id BIGINT NOT NULL REFERENCES users(id),
+        person_id BIGINT NOT NULL REFERENCES people(id),
+        pain_type_id BIGINT NOT NULL REFERENCES pain_types(id),
+        pain_level INTEGER NOT NULL CHECK (pain_level >= 1 AND pain_level <= 10),
+        notes TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    console.log("✅ Tabla records creada/verificada");
+
     // Add new columns if they don't exist (for backwards compatibility)
     try {
       await client.query(
@@ -119,6 +134,9 @@ async function setupDatabase() {
     );
     console.log(
       "   - pain_types (id, user_id, name, image_url, created_at, updated_at)"
+    );
+    console.log(
+      "   - records (id, user_id, person_id, pain_type_id, pain_level, notes, created_at, updated_at)"
     );
   } catch (error) {
     console.error("❌ Error al inicializar la base de datos:", error);
