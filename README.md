@@ -1,50 +1,29 @@
-# DailyAches API (Nuxt + PostgreSQL)
+# Dailyaches-api
 
-API tipo “Lebrun”: sirve endpoints en `server/api/*` (y si luego quieres, puedes agregar páginas/admin con Nuxt).
+Backend Nuxt 4 con server routes para autenticacion, usuarios, personas, tipos de dolor y registros.
 
-## Setup
+## Lectura recomendada
+
+- Contexto funcional y tecnico: CONTEXTO_PROYECTO.md
+- Arranque operativo: ARRANQUE_RAPIDO.md
+- Matriz app/backend: MATRIZ_APP_BACKEND.md
+
+## Stack
+
+- Nuxt 4
+- Nitro server routes
+- PostgreSQL
+- JWT
+
+## Comandos rapidos
 
 ```bash
 npm install
-```
-
-Crea un `.env` (puedes copiar de `.env.example`) y completa lo mínimo:
-
-- `JWT_SECRET`
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
-- `DB_SCHEMA` (ej: `dailyaches_api`)
-
-> También puedes usar `POSTGRES_URL` (si existe, tiene prioridad sobre `DB_*`).
-
-## Dev
-
-```bash
 npm run dev
+npm run build
+npm run preview
 ```
 
-## Endpoints
+## Estado de la documentacion
 
-- `GET /api/health`
-- `GET /api/db-check`
-
-Auth:
-
-- `POST /api/auth/register` body: `{ "email": "...", "password": "...", "name": "..." }`
-- `POST /api/auth/login` body: `{ "email": "...", "password": "..." }`
-- `GET /api/auth/me` header: `Authorization: Bearer <token>`
-
-Admin (requires `role=admin`):
-
-- `GET /api/admin/users?limit=20&offset=0&search=`
-- `GET /api/admin/users/:id`
-- `PATCH /api/admin/users/:id` body: `{ "name": "...", "role": "admin|user", "is_active": true|false }`
-- `DELETE /api/admin/users/:id` (soft delete: sets `is_active=false`)
-
-Bootstrap admin (optional):
-
-- Set `ADMIN_SETUP_TOKEN` in `.env`
-- `POST /api/admin/bootstrap` header `x-admin-setup-token: <ADMIN_SETUP_TOKEN>` body `{ "email": "you@example.com" }`
-
-## Nota de DB
-
-En el primer `register/login/me` se crea automáticamente el schema y la tabla `users` si no existen.
+El detalle operativo de variables, smoke tests y despliegue esta en ARRANQUE_RAPIDO.md. Los contratos con la app estan en MATRIZ_APP_BACKEND.md.
