@@ -50,6 +50,24 @@ npm install
 npm run dev
 ```
 
+## Base de datos y pruebas
+
+Los cambios de esquema viven en `migrations/` (archivos `.sql` numerados). Se aplican
+una sola vez, en orden, y quedan registrados en la tabla `schema_migrations`:
+
+```bash
+npm run migrate
+```
+
+Antes de aplicar migraciones a datos que importan, haz un respaldo con `pg_dump`.
+
+Las pruebas de integracion usan un schema aparte (`dailyaches_test`, se recrea en cada
+corrida) y no tocan `dailyaches_api`. Detén `npm run dev` antes: comparten la carpeta `.nuxt`.
+
+```bash
+npm test
+```
+
 ## Smoke test recomendado
 
 Chequeo manual minimo:
