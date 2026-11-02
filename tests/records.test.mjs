@@ -180,3 +180,25 @@ describe("listing records", () => {
     assert.equal(status, 401);
   });
 });
+
+describe("today's records", () => {
+  const today = (user, tz) =>
+    api.request("GET", `/records/today${tz ? `?tz=${encodeURIComponent(tz)}` : ""}`, { token: user.token });
+
+  test("include the ones made now and leave out older days, in any time zone", async () => {
+    const user = await api.seedUser();
+    await createRecord(user);
+    await createRecord(user, { created_at: new Date(Date.now() - 26 * 3600 * 1000).toISOString() });
+
+    for (const tz of [undefined, "America/Mexico_City", "Pacific/Kiritimati", "Etc/GMT+12"]) {
+      const { status, body } = await today(user, tz);
+      assert.equal(status, 200, `tz ${tz}`);
+      assert.equal(body.records.length, 1, `tz ${tz}`);
+    }
+  });
+
+  test("refuse an unknown time zone", async () => {
+    const user = await api.seedUser();
+    assert.equal((await today(user, "Mars/Olympus")).status, 400);
+  });
+});
