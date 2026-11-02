@@ -25,7 +25,7 @@ Esta matriz replica el contrato desde el backend y debe mantenerse sincronizada 
 | POST /api/records (progress) | la respuesta incluye `progress` tras sumar 10 puntos y desbloquear logros, en la misma transaccion | banner de logros y nivel |
 | DELETE /api/people/:id  | borra tambien los records de la persona (cascada)                                                   | removePerson en la app                     |
 | DELETE /api/pain-types/:id | 409 mientras haya records que lo usen                                                            | mensaje de error en la app                 |
-| GET /api/records/today  | depende de fecha del servidor                                                                       | created_at y timezone                      |
+| GET /api/records/today  | `?tz=` zona IANA opcional (UTC si falta); 400 si no existe                                         | created_at y timezone                      |
 
 ## Reglas de coordinacion
 
