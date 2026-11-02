@@ -1,5 +1,7 @@
 import { getAuthUser } from "../../auth/requireUser";
 import { query } from "../../db/query";
+import { withTransaction } from "../../db/transaction";
+import { addRecordToProgress, lockProgress } from "../../utils/progress";
 
 export default defineEventHandler(async (event) => {
   const user = await getAuthUser(event);
@@ -51,22 +53,32 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Insert the record
-  const result = await query(
-    `
-    INSERT INTO records (user_id, person_id, pain_type_id, pain_level, notes, created_at)
-    VALUES ($1, $2, $3, $4, $5, COALESCE($6::timestamptz, NOW()))
-    RETURNING id, person_id, pain_type_id, pain_level, notes, created_at
-  `,
-    [
-      user.id,
-      body.person_id,
-      body.pain_type_id,
-      body.pain_level,
-      body.notes || null,
-      createdAt,
-    ]
-  );
+  // The record and its points are saved together or not at all. Progress is
+  // locked first, so an account without any yet starts from its older records.
+  const { record, progress } = await withTransaction(async (client) => {
+    await lockProgress(client, user.id);
 
-  return { record: result.rows[0] };
+    const result = await client.query(
+      `
+      INSERT INTO records (user_id, person_id, pain_type_id, pain_level, notes, created_at)
+      VALUES ($1, $2, $3, $4, $5, COALESCE($6::timestamptz, NOW()))
+      RETURNING id, person_id, pain_type_id, pain_level, notes, created_at
+    `,
+      [
+        user.id,
+        body.person_id,
+        body.pain_type_id,
+        body.pain_level,
+        body.notes || null,
+        createdAt,
+      ]
+    );
+
+    return {
+      record: result.rows[0],
+      progress: await addRecordToProgress(client, user.id),
+    };
+  });
+
+  return { record, progress };
 });

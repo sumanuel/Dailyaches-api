@@ -61,6 +61,8 @@ npm run migrate
 
 Antes de aplicar migraciones a datos que importan, haz un respaldo con `pg_dump`.
 
+La migracion 004 crea `user_progress` y `user_achievements` (puntos y logros). Las reglas del juego viven en `server/utils/gamification.ts` y espejan `utils/gamification.js` de la app; `tests/progress-golden.json` guarda valores generados con las reglas de la app para detectar cualquier desvio. **Sin la migracion 004, crear un registro falla**: aplica `npm run migrate` antes de desplegar.
+
 La migracion 003 agrega `users.password_changed_at`. Cada token lleva esa marca (`pca`): al cambiar la contraseña los tokens anteriores dejan de valer. `ensureUsersInfra` tambien crea la columna si falta, para que una API sin migrar no deje de autenticar.
 
 Las pruebas de integracion usan un schema aparte (`dailyaches_test`, se recrea en cada

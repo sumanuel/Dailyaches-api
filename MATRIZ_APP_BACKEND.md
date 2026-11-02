@@ -20,6 +20,9 @@ Esta matriz replica el contrato desde el backend y debe mantenerse sincronizada 
 | POST /api/records       | person_id, pain_type_id, pain_level obligatorios; pain_level 1..10; ownership de person y pain_type; created_at opcional (ISO 8601, entre 2000-01-01 y ahora) | person_id, pain_type_id, pain_level, created_at |
 | PUT /api/records/:id    | id entero, ownership, pain_level 1..10 si se envia, created_at con las mismas reglas                | person_id, pain_type_id, pain_level, notes, created_at |
 | GET /api/records        | `{ records, total, limit, offset }`; query opcional limit (1..200), offset, from (inclusivo), to (exclusivo), person_id, pain_type_id; sin limit devuelve todo | person_name, pain_type_name, pain_type_image y total |
+| GET /api/progress       | `{ progress: { points, level, records_count, unlocked_achievements } }`; se crea al primer uso con los registros existentes | progress en la app (puntos, nivel, logros) |
+| POST /api/progress/achievements/:id | solo logros manuales (12); otro automatico = 400, desconocido = 404; idempotente | compartir un registro en la app |
+| POST /api/records (progress) | la respuesta incluye `progress` tras sumar 10 puntos y desbloquear logros, en la misma transaccion | banner de logros y nivel |
 | DELETE /api/people/:id  | borra tambien los records de la persona (cascada)                                                   | removePerson en la app                     |
 | DELETE /api/pain-types/:id | 409 mientras haya records que lo usen                                                            | mensaje de error en la app                 |
 | GET /api/records/today  | depende de fecha del servidor                                                                       | created_at y timezone                      |
