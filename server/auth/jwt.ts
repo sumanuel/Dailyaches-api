@@ -4,6 +4,10 @@ import jwt from "jsonwebtoken";
 export type JwtPayload = {
   sub: string;
   email: string;
+  // Password version: the moment (ms since epoch) of the user's last password
+  // change, 0 if it never changed. A token only works while it matches the
+  // user's current value, so changing the password closes older sessions.
+  pca?: number;
 };
 
 export function signAccessToken(payload: JwtPayload) {
@@ -44,9 +48,13 @@ export function verifyAccessToken(token: string): JwtPayload {
     if (typeof decoded !== "object" || decoded === null) {
       throw new Error("Invalid token payload");
     }
-    const { sub, email } = decoded as any;
+    const { sub, email, pca } = decoded as any;
     if (!sub || !email) throw new Error("Missing token fields");
-    return { sub: String(sub), email: String(email) };
+    return {
+      sub: String(sub),
+      email: String(email),
+      pca: typeof pca === "number" ? pca : 0,
+    };
   } catch {
     throw createError({
       statusCode: 401,

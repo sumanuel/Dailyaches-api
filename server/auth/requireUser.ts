@@ -11,6 +11,7 @@ export type AuthUser = {
   birth_date: string | null;
   role: string;
   is_active: boolean;
+  password_changed_at: Date | null;
 };
 
 export async function getAuthUser(event: any): Promise<AuthUser> {
@@ -35,7 +36,7 @@ export async function getAuthUser(event: any): Promise<AuthUser> {
 
   await ensureUsersInfra();
   const result = await query<AuthUser>(
-    "select id, email, name, phone, birth_date, role, is_active from users where id = $1",
+    "select id, email, name, phone, birth_date, role, is_active, password_changed_at from users where id = $1",
     [Number(payload.sub)]
   );
 
@@ -46,6 +47,17 @@ export async function getAuthUser(event: any): Promise<AuthUser> {
 
   if (!user.is_active) {
     throw createError({ statusCode: 403, statusMessage: "User is disabled" });
+  }
+
+  // A password change closes every session that started before it.
+  const currentVersion = user.password_changed_at
+    ? user.password_changed_at.getTime()
+    : 0;
+  if ((payload.pca ?? 0) !== currentVersion) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Invalid or expired token",
+    });
   }
 
   return user;
