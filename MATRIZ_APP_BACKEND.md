@@ -11,6 +11,8 @@ Esta matriz replica el contrato desde el backend y debe mantenerse sincronizada 
 | POST /api/auth/register | email y password obligatorios, password min 6, name opcional                                        | email, password, name                      |
 | POST /api/auth/login    | email y password obligatorios                                                                       | token, user                                |
 | PUT /api/auth/profile   | name no vacio si se envia, email valido, phone string o null, birth_date YYYY-MM-DD                 | birth_date, email, phone                   |
+| PUT /api/auth/password  | current_password y new_password (minimo 6, distinta); actual incorrecta = 403; responde `{ success, token }` | token nuevo que la app guarda; sesiones anteriores dejan de valer |
+| DELETE /api/auth/account | password en el body; 403 si es incorrecta; 409 si es el unico admin; transaccion sobre records, people, pain_types, users | la app borra tambien sus datos locales |
 | POST /api/people        | name obligatorio; relation, image_url, phone opcionales; whatsapp_enabled bool                      | image_url, whatsapp_enabled                |
 | PUT /api/people/:id     | id entero, ownership por user, name obligatorio                                                     | id, name, whatsapp_enabled                 |
 | POST /api/pain-types    | name obligatorio y unico por usuario                                                                | name, image_url                            |

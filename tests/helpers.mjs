@@ -100,10 +100,30 @@ export async function startApi() {
       body: { name: "Cabeza", image_url: "DolorDeCabeza.png" },
     });
     return {
+      email,
+      password: "secret123",
       token,
       personId: Number(person.body.person.id),
       painTypeId: Number(painType.body.painType.id),
     };
+  };
+
+  // Direct SQL against the test schema, for things the API cannot do (like making an admin).
+  const sql = async (text, params = []) => {
+    const pool = new pg.Pool({
+      host: process.env.DB_HOST || "127.0.0.1",
+      port: Number(process.env.DB_PORT || 5432),
+      database: process.env.DB_NAME || "daily-aches",
+      user: process.env.DB_USER || "postgres",
+      password: process.env.DB_PASSWORD,
+      max: 1,
+      options: `-c search_path=${TEST_SCHEMA},public`,
+    });
+    try {
+      return await pool.query(text, params);
+    } finally {
+      await pool.end();
+    }
   };
 
   const stop = () => {
@@ -115,5 +135,5 @@ export async function startApi() {
     }
   };
 
-  return { request, seedUser, stop };
+  return { request, seedUser, sql, stop };
 }

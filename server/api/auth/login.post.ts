@@ -30,8 +30,9 @@ export default defineEventHandler(async (event) => {
     password_hash: string;
     role: string;
     is_active: boolean;
+    password_changed_at: Date | null;
   }>(
-    "select id, email, name, password_hash, role, is_active from users where email = $1",
+    "select id, email, name, password_hash, role, is_active, password_changed_at from users where email = $1",
     [email]
   );
 
@@ -58,6 +59,7 @@ export default defineEventHandler(async (event) => {
   const token = signAccessToken({
     sub: String(userRow.id),
     email: userRow.email,
+    pca: userRow.password_changed_at ? userRow.password_changed_at.getTime() : 0,
   });
 
   return {

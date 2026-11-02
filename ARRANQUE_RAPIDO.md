@@ -61,6 +61,8 @@ npm run migrate
 
 Antes de aplicar migraciones a datos que importan, haz un respaldo con `pg_dump`.
 
+La migracion 003 agrega `users.password_changed_at`. Cada token lleva esa marca (`pca`): al cambiar la contraseña los tokens anteriores dejan de valer. `ensureUsersInfra` tambien crea la columna si falta, para que una API sin migrar no deje de autenticar.
+
 Las pruebas de integracion usan un schema aparte (`dailyaches_test`, se recrea en cada
 corrida) y no tocan `dailyaches_api`. Detén `npm run dev` antes: comparten la carpeta `.nuxt`.
 

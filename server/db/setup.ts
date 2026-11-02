@@ -54,6 +54,10 @@ export async function ensureUsersInfra() {
         if not exists (select 1 from information_schema.columns where table_name = 'users' and column_name = 'birth_date') then
           alter table users add column birth_date date null;
         end if;
+
+        if not exists (select 1 from information_schema.columns where table_name = 'users' and column_name = 'password_changed_at') then
+          alter table users add column password_changed_at timestamptz null;
+        end if;
       end
       $$;
     `);
