@@ -16,6 +16,8 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event);
   const { person_id, pain_type_id, pain_level, notes } = body;
+  const createdAt =
+    body.created_at === undefined ? undefined : parseCreatedAt(body.created_at);
 
   // Validate required fields
   if (pain_level !== undefined && (pain_level < 1 || pain_level > 10)) {
@@ -88,6 +90,11 @@ export default defineEventHandler(async (event) => {
   if (notes !== undefined) {
     updateFields.push(`notes = $${paramCount++}`);
     values.push(notes);
+  }
+
+  if (createdAt) {
+    updateFields.push(`created_at = $${paramCount++}`);
+    values.push(createdAt);
   }
 
   if (updateFields.length === 0) {

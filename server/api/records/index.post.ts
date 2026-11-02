@@ -22,6 +22,9 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // When the pain happened; defaults to now (a late entry may send a past date)
+  const createdAt = parseCreatedAt(body.created_at);
+
   // Verify that person_id belongs to the user
   const personCheck = await query(
     "SELECT id FROM people WHERE id = $1 AND user_id = $2",
@@ -51,8 +54,8 @@ export default defineEventHandler(async (event) => {
   // Insert the record
   const result = await query(
     `
-    INSERT INTO records (user_id, person_id, pain_type_id, pain_level, notes)
-    VALUES ($1, $2, $3, $4, $5)
+    INSERT INTO records (user_id, person_id, pain_type_id, pain_level, notes, created_at)
+    VALUES ($1, $2, $3, $4, $5, COALESCE($6::timestamptz, NOW()))
     RETURNING id, person_id, pain_type_id, pain_level, notes, created_at
   `,
     [
@@ -61,6 +64,7 @@ export default defineEventHandler(async (event) => {
       body.pain_type_id,
       body.pain_level,
       body.notes || null,
+      createdAt,
     ]
   );
 
